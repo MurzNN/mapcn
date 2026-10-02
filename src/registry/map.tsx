@@ -2015,7 +2015,7 @@ function circlePolygon(
   const lngRad = (lng * Math.PI) / 180;
   const ring: [number, number][] = [];
 
-  for (let i = 0; i <= steps; i += 1) {
+  for (let i = 0; i < steps; i += 1) {
     const bearing = (i / steps) * 2 * Math.PI;
     const lat2 = Math.asin(
       Math.sin(latRad) * Math.cos(angularDistance) +
@@ -2029,6 +2029,8 @@ function circlePolygon(
       );
     ring.push([(lng2 * 180) / Math.PI, (lat2 * 180) / Math.PI]);
   }
+  // Repeat the first position. Recomputing bearing 2π drifts by ~1e-21 and leaves the ring open.
+  ring.push(ring[0]);
 
   return { type: "Polygon", coordinates: [ring] };
 }
@@ -2074,7 +2076,10 @@ function MapCircle({
   const [lng, lat] = center;
   const polygon = useMemo(
     () =>
-      radius > 0 && Number.isInteger(steps) && steps >= MIN_CIRCLE_STEPS
+      Number.isFinite(radius) &&
+      radius > 0 &&
+      Number.isInteger(steps) &&
+      steps >= MIN_CIRCLE_STEPS
         ? circlePolygon([lng, lat], radius, steps)
         : null,
     [lng, lat, radius, steps],
