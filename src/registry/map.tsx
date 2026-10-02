@@ -2000,6 +2000,7 @@ function MapGeoJSON<
 }
 
 const CIRCLE_STEPS = 64;
+const MIN_CIRCLE_STEPS = 6;
 const EARTH_RADIUS_METERS = 6_371_000;
 
 /** Closed geodesic polygon. `center` is [longitude, latitude]; `radius` is meters. */
@@ -2037,7 +2038,11 @@ type MapCircleProps = {
   center: [number, number];
   /** Ground radius in meters. */
   radius: number;
-  /** Vertices used to approximate the circle. Higher = smoother. (default: 64) */
+  /**
+   * Vertices used to approximate the circle. Minimum 6, which is a hexagon
+   * and the coarsest shape that still reads as a circle. Higher = smoother.
+   * (default: 64)
+   */
   steps?: number;
   /**
    * Paint for the fill layer. Merged on top of MapGeoJSON's theme-aware
@@ -2068,7 +2073,10 @@ function MapCircle({
 }: MapCircleProps) {
   const [lng, lat] = center;
   const polygon = useMemo(
-    () => (radius > 0 ? circlePolygon([lng, lat], radius, steps) : null),
+    () =>
+      radius > 0 && Number.isInteger(steps) && steps >= MIN_CIRCLE_STEPS
+        ? circlePolygon([lng, lat], radius, steps)
+        : null,
     [lng, lat, radius, steps],
   );
 

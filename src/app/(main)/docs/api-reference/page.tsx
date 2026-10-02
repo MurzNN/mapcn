@@ -821,7 +821,7 @@ export default function ApiReferencePage() {
               type: "number",
               default: "64",
               description:
-                "Vertices used to approximate the circle. Higher = smoother.",
+                "Vertices used to approximate the circle. Minimum 6 (a hexagon). Higher = smoother. Non-integers and smaller values are ignored.",
             },
             {
               name: "fillPaint",
